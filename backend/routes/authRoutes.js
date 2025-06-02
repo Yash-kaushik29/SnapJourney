@@ -7,6 +7,7 @@ const otpGenerator = require("otp-generator");
 const transporter = require("../utils/mailer");
 const Otp = require("../models/Otp");
 const axios = require("axios");
+const authMiddleware = require("../middlewares/authMiddleware");
 
 router.post("/user-signup", async (req, res) => {
   const { username, email, password } = req.body.formData;
@@ -140,7 +141,7 @@ router.post("/user-login", async (req, res) => {
     if (!existingUser) {
       res.send({ success: false, message: "User does not exist!" });
     } else {
-      const match = await bcrypt.compare(password, existingUser.password);
+      const match = bcrypt.compare(password, existingUser.password);
 
       if (match) {
         var token = jwt.sign(
@@ -164,8 +165,9 @@ router.post("/user-login", async (req, res) => {
             success: true,
             message: "Logged In Successfully!",
             user: {
-              username: existingUser.username,
               _id: existingUser._id,
+              username: existingUser.username,
+              email: existingUser.username,
             },
           });
       } else {
@@ -178,14 +180,14 @@ router.post("/user-login", async (req, res) => {
 });
 
 router.post("/google-signup", async (req, res) => {
-  const { token } = req.body;
+  const { googleToken } = req.body;
 
   try {
     const googleRes = await axios.get(
       `https://www.googleapis.com/oauth2/v3/userinfo`,
       {
         headers: {
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${googleToken}`,
         },
       }
     );
@@ -196,7 +198,6 @@ router.post("/google-signup", async (req, res) => {
       let username;
       let exists = true;
 
-      // Sanitize base name (remove spaces, lowercase)
       baseName = baseName.toLowerCase().replace(/\s+/g, "");
 
       while (exists) {
@@ -208,28 +209,51 @@ router.post("/google-signup", async (req, res) => {
       return username;
     };
 
-    const existingUser = await User.findOne({ email });
+    let user = await User.findOne({ email });
 
-    if (existingUser) {
-      return  res
-        .status(200)
-        .json({
-          success: true,
-          message: "Login success",
-          user: { email, name },
-        });
+    if (!user) {
+      const username = await generateUniqueUsername(name);
+      user = new User({ username, email });
+      await user.save();
     }
 
-    const username = await generateUniqueUsername(name);
+    const token = jwt.sign(
+      {
+        userID: user._id,
+        email: user.email,
+        username: user.username,
+      },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "15d" }
+    );
 
-    const newUser = new User({ username, email });
-    await newUser.save();
-
-    return res.status(200).json({ success: true, message: "Login success", user: { email, name } });
+    res
+      .cookie("token", token, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 15 * 24 * 60 * 60 * 1000, // 15 days
+      })
+      .status(200)
+      .send({
+        success: true,
+        message: "Logged in successfully",
+        user: {
+          username: user.username,
+          _id: user._id,
+        },
+      });
   } catch (err) {
-    console.error("Error fetching user info:", err.message);
-    return res.status(401).json({ success: false, message: "Invalid token" });
+    console.error("Error fetching Google user info:", err.message);
+    res.status(401).json({ success: false, message: "Invalid token" });
   }
 });
+
+router.get('/getUser', authMiddleware, (req, res) => {
+  res.send({
+    success: true,
+    user: req.user,
+  });
+})
 
 module.exports = router;

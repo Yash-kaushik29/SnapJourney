@@ -16,7 +16,7 @@ const Signup = () => {
     confirmPassword: "",
   });
   const [step, setStep] = useState("form");
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -92,12 +92,13 @@ const Signup = () => {
     onSuccess: async (tokenResponse) => {
       const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/api/auth/google-signup`,
-        { token: tokenResponse.access_token },
+        { googleToken: tokenResponse.access_token },
         { withCredentials: true }
       );
 
       if (response.data.success) {
         toast.success("Logged in successfully! 🎉");
+        console.log(response.data)
         setTimeout(() => {
           navigate("/");
         }, 2000);

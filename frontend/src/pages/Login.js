@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { FaPlane, FaPlaneDeparture } from "react-icons/fa6";
 import { motion } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -7,13 +7,19 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import { FcGoogle } from "react-icons/fc";
 import { useGoogleLogin } from "@react-oauth/google";
+import { UserContext } from "../context/userContext";
 
 const Login = () => {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
+  const {user, setUser} = useContext(UserContext);
   const navigate = useNavigate();
+
+  if(user) {
+    navigate('/')
+  }
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +56,7 @@ const Login = () => {
       onSuccess: async (tokenResponse) => {
         const response = await axios.post(
           `${process.env.REACT_APP_API_URL}/api/auth/google-signup`,
-          { token: tokenResponse.access_token },
+          { googleToken: tokenResponse.access_token },
           { withCredentials: true }
         );
   
