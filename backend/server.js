@@ -4,8 +4,9 @@ const mongoose = require("mongoose");
 const dotenv = require("dotenv");
 const cookieParser = require('cookie-parser');
 const colors = require("colors");
-const authRoutes = require('./routes/authRoutes');
 const bodyParser = require("body-parser");
+const authRoutes = require('./routes/authRoutes');
+const searchRoutes = require('./routes/SearchRoutes');
 
 const app = express();
 dotenv.config();
@@ -35,7 +36,7 @@ mongoose
   });
 
 app.use('/api/auth', authRoutes);
-
+app.use('/api/search', searchRoutes);
 
 app.listen(5000, () => {
   console.log("Server is running on PORT 5000".blue)
