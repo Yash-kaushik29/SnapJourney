@@ -21,6 +21,24 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
     },
+    trips: {
+      type: String
+    },
+    profilePic: {
+      type: String,
+    },
+    followers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    following: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }  
 );

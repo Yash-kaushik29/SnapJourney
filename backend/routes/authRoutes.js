@@ -213,7 +213,7 @@ router.post("/google-signup", async (req, res) => {
 
     if (!user) {
       const username = await generateUniqueUsername(name);
-      user = new User({ username, email });
+      user = new User({ username, email, profilePic: picture });
       await user.save();
     }
 
