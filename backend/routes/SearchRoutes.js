@@ -1,31 +1,31 @@
 const express = require("express");
 const User = require("../models/User");
+const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.get("/search-friends", async (req, res) => {
+router.get("/search-friends", authMiddleware, async (req, res) => {
   const { query = "", page = 1 } = req.query;
+  const currentUserId = req.user.userID;
   const PAGE_SIZE = 12;
   const skip = (page - 1) * PAGE_SIZE;
 
   try {
-    let users;
-    let total;
+    const baseFilter = { _id: { $ne: currentUserId } };
 
-    const regex = new RegExp(query, "i");
-
+    let filter;
     if (!query.trim()) {
-      total = await User.countDocuments();
-      users = await User.find()
-        .sort({ followers: -1 })
-        .skip(skip)
-        .limit(PAGE_SIZE);
+      filter = baseFilter;
     } else {
-      total = await User.countDocuments({ username: { $regex: regex } });
-      users = await User.find({ username: { $regex: regex } })
-        .skip(skip)
-        .limit(PAGE_SIZE);
+      const regex = new RegExp(query, "i");
+      filter = { ...baseFilter, username: { $regex: regex } };
     }
+
+    const total = await User.countDocuments(filter);
+    const users = await User.find(filter)
+      .sort(!query.trim() ? { followers: -1 } : {}) 
+      .skip(skip)
+      .limit(PAGE_SIZE);
 
     res.status(200).send({ success: true, users, total });
   } catch (error) {
@@ -33,5 +33,6 @@ router.get("/search-friends", async (req, res) => {
     res.status(500).send({ error: "Server error" });
   }
 });
+
 
 module.exports = router;

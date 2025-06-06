@@ -1,11 +1,12 @@
 import React from "react";
 import { IoAddCircle } from "react-icons/io5";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 
-const UserCard = ({ user }) => {
+const UserCard = ({ user, loggedInUserFollowing }) => {
   const avatarColors = [
     "bg-rose-500",
     "bg-blue-500",
@@ -27,8 +28,48 @@ const UserCard = ({ user }) => {
     return avatarColors[sum % avatarColors.length];
   };
 
-  const handleFollow = async (userId) => {
-    //API call here
+  const handleFollow = async (userId, username) => {
+    try {
+      const {data} = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/user/follow`,
+        { userId },
+        { withCredentials: true }
+      );
+
+      if(data.success) {
+        toast.success(`Following ${username}!`);
+        loggedInUserFollowing.push(userId)
+      }
+      else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Follow failed:", error);
+      toast.error("Something went wrong!");
+    }
+  };
+
+  const handleunfollow = async (userId, username) => {
+    try {
+      const {data} = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/user/unfollow`,
+        { userId },
+        { withCredentials: true }
+      );
+
+      if(data.success) {
+        toast.success(`Unfollowed ${username}!`);
+        loggedInUserFollowing = loggedInUserFollowing.filter(id => {
+            return id !== userId;
+        })
+      }
+      else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Follow failed:", error);
+      toast.error("Something went wrong!");
+    }
   };
 
   return (
@@ -66,22 +107,38 @@ const UserCard = ({ user }) => {
 
           {/* Stats */}
           <p className="text-sm text-gray-600 dark:text-gray-400">
-            {user.followers || 0} followers • {user.tripsCount || 0} trips
+            {user.followers.length || 0} followers • {user.tripsCount || 0} trips
           </p>
         </div>
       </div>
 
       {/* Follow Button */}
       <div className="relative group">
-        <button
-          onClick={() => handleFollow(user._id)}
-          className="text-rose-600 hover:text-rose-700 transition-colors text-2xl"
-        >
-          <IoAddCircle />
-        </button>
-        <div className="absolute right-1/2 translate-x-1/2 top-full mt-1 px-2 py-0.5 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
-          Follow
-        </div>
+        {loggedInUserFollowing.includes(user._id) ? (
+          <>
+            <button
+              onClick={() => handleunfollow(user._id, user.username)}
+              className="text-green-600 hover:text-green-700 transition-colors text-2xl"
+            >
+              <IoMdCheckmarkCircleOutline />
+            </button>
+            <div className="absolute right-1/2 translate-x-1/2 top-full mt-1 px-2 py-0.5 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+              Unfollow
+            </div>
+          </>
+        ) : (
+          <>
+            <button
+              onClick={() => handleFollow(user._id, user.username)}
+              className="text-rose-600 hover:text-rose-700 transition-colors text-2xl"
+            >
+              <IoAddCircle />
+            </button>
+            <div className="absolute right-1/2 translate-x-1/2 top-full mt-1 px-2 py-0.5 text-xs bg-black text-white rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-10">
+              Follow
+            </div>
+          </>
+        )}
       </div>
     </motion.div>
   );
