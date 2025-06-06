@@ -4,9 +4,8 @@ const authMiddleware = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.get("/search-friends", authMiddleware, async (req, res) => {
+router.get("/search-friends", async (req, res) => {
   const { query = "", page = 1 } = req.query;
-  const currentUserId = req.user.userID;
   const PAGE_SIZE = 12;
   const skip = (page - 1) * PAGE_SIZE;
 
@@ -33,6 +32,5 @@ router.get("/search-friends", authMiddleware, async (req, res) => {
     res.status(500).send({ error: "Server error" });
   }
 });
-
 
 module.exports = router;
