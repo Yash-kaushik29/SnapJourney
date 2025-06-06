@@ -13,12 +13,13 @@ export default function SearchFriends() {
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [loggedInUserFollowing, setLoggedInUserFollowing] = useState([]);
 
   const fetchUsers = async (searchQuery = "", page = 1) => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/search/search-friends?query=${searchQuery}&page=${page}`
+        `${process.env.REACT_APP_API_URL}/api/search/search-friends?query=${searchQuery}&page=${page}`, {withCredentials: true}
       );
       setUsers(data.users);
       setHasMore(page * 12 < data.total);
@@ -31,6 +32,23 @@ export default function SearchFriends() {
   useEffect(() => {
     fetchUsers(query, page);
   }, [page, query]);
+
+  useEffect(() => {
+    async function fetchLoggedInUser() {
+      try {
+        const { data } = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/user/following`,
+          {
+            withCredentials: true, 
+          }
+        );
+        setLoggedInUserFollowing(data.following.map((u) => u._id)); 
+      } catch (error) {
+        console.error("Failed to fetch logged-in user data", error);
+      }
+    }
+    fetchLoggedInUser();
+  }, [loggedInUserFollowing]);
 
   const handleSearchClick = () => {
     setPage(1);
@@ -89,9 +107,7 @@ export default function SearchFriends() {
           <div className="px-6 pb-16">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {users.length > 0 &&
-                users.map((user, idx) => (
-                  <UserCard user={user} />
-                ))}
+                users.map((user, idx) => <UserCard key={idx} user={user} loggedInUserFollowing={loggedInUserFollowing} />)}
             </div>
 
             {/* Pagination */}
@@ -99,7 +115,7 @@ export default function SearchFriends() {
               <button
                 onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
                 disabled={page === 1}
-                className="px-4 py-2 bg-rose-600 text-white rounded hover:bg-rose-700 disabled:opacity-50"
+                className={`px-4 py-2 bg-rose-600 text-white rounded hover:bg-rose-700 disabled:opacity-50 ${page === 1 ? "hover:cursor-not-allowed" : "hover:cursor-pointer"}`}
               >
                 Previous
               </button>
@@ -107,7 +123,7 @@ export default function SearchFriends() {
               <button
                 onClick={() => setPage((prev) => prev + 1)}
                 disabled={!hasMore}
-                className="px-4 py-2 bg-rose-600 text-white rounded hover:bg-rose-700 disabled:opacity-50"
+                className={`px-4 py-2 bg-rose-600 text-white rounded hover:bg-rose-700 disabled:opacity-50 ${hasMore ? "hover:cursor-pointer" : "hover:cursor-not-allowed"}`}
               >
                 Next
               </button>
