@@ -1,14 +1,32 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { UserContext } from "../context/userContext";
 import { motion } from "framer-motion";
+import { ToastContainer, toast } from "react-toastify";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 
 const ProfilePage = () => {
+  const { user } = useContext(UserContext);
   const [name, setName] = useState("Viyom Paliwal");
   const [email, setEmail] = useState("viyom@example.com");
   const username = "viyomog";
   const followers = 342;
   const following = 198;
   const trips = 24;
+
+  if (!user) {
+    toast.error("Please login first!");
+  }
+
+  useEffect(() => {
+    const fetchUserInfo = async() => {
+        const {data} = await axios.get(`${process.env.REACT_APP_API_URL}/api/user/user-info`, {withCredentials: true});
+
+        console.log(data)
+    }
+
+    fetchUserInfo();
+  })
 
   const latestTrips = [
     { title: "Manali Adventure", date: "May 2025", image: "/trip1.jpg" },
@@ -18,6 +36,7 @@ const ProfilePage = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-white">
+        <ToastContainer />
       <Navbar />
 
       {/* Cover Image */}

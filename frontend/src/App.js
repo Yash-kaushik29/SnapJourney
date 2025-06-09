@@ -20,7 +20,7 @@ const App = () => {
         <Route path='/find-friends' element={<SearchFriends />} />
         <Route path='/contact' element={<ContactPage />} />
         <Route path='/faqs' element={<FaqsPage />} />
-        <Route path="/my-profile" element={<ProfilePage />} />
+        <Route path='/my-profile' element={<ProfilePage />} />
       </Routes>
       </UserContextProvider>
     </div>

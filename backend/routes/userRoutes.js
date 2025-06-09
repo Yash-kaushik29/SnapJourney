@@ -41,13 +41,15 @@ router.post("/follow", authMiddleware, async (req, res) => {
     res.status(200).json({ success: true, message: "Followed successfully." });
   } catch (error) {
     console.error("Follow error:", error);
-    res.status(500).json({ success: false, error: "Server error during follow." });
+    res
+      .status(500)
+      .json({ success: false, error: "Server error during follow." });
   }
 });
 
 router.post("/unfollow", authMiddleware, async (req, res) => {
   try {
-    const currentUserId = req.user.userID; 
+    const currentUserId = req.user.userID;
     const { userId: targetUserId } = req.body;
 
     if (currentUserId === targetUserId) {
@@ -58,7 +60,9 @@ router.post("/unfollow", authMiddleware, async (req, res) => {
     const targetUser = await User.findById(targetUserId);
 
     if (!targetUser) {
-      return res.status(404).json({ success: false, message: "User to unfollow not found." });
+      return res
+        .status(404)
+        .json({ success: false, message: "User to unfollow not found." });
     }
 
     currentUser.following = currentUser.following.filter(
@@ -72,12 +76,31 @@ router.post("/unfollow", authMiddleware, async (req, res) => {
     await currentUser.save();
     await targetUser.save();
 
-    res.status(200).json({ success: true, message: "Unfollowed successfully." });
+    res
+      .status(200)
+      .json({ success: true, message: "Unfollowed successfully." });
   } catch (error) {
     console.error("Unfollow error:", error);
-    res.status(500).json({ success: false, error: "Server error during unfollow." });
+    res
+      .status(500)
+      .json({ success: false, error: "Server error during unfollow." });
   }
 });
 
+router.get("/user-info", authMiddleware, async (req, res) => {
+  const userId = req.user.userID;
+
+  try {
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) {
+      res.status(401).send({ success: false, message: "User not found" });
+    }
+
+    res.status(200).send({ success: true, message: "User Info fetched!", user: existingUser });
+  } catch (error) {
+    res.status(501).send({ success: false, message: "Some error occured!" });
+  }
+});
 
 module.exports = router;
