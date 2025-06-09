@@ -12,6 +12,7 @@ const Signup = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
+    fullName: "",
     password: "",
     confirmPassword: "",
   });
@@ -157,6 +158,21 @@ const Signup = () => {
               />
               <span className="absolute left-3 top-3.5 text-purple-600">
                 📧
+              </span>
+            </div>
+
+            <div className="relative">
+              <input
+                type="text"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleChange}
+                required
+                placeholder="Full Name"
+                className="w-full px-4 py-3 pl-10 rounded-md border border-white/30 focus:ring-2 focus:ring-white/70 focus:outline-none shadow-inner bg-white/70 text-gray-900 placeholder-gray-500"
+              />
+              <span className="absolute left-3 top-3.5 text-purple-600">
+                🔒
               </span>
             </div>
 

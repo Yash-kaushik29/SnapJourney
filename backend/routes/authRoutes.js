@@ -10,7 +10,7 @@ const axios = require("axios");
 const authMiddleware = require("../middlewares/authMiddleware");
 
 router.post("/user-signup", async (req, res) => {
-  const { username, email, password } = req.body.formData;
+  const { username, email, fullName, password } = req.body.formData;
   const { otp } = req.body;
 
   try {
@@ -39,7 +39,7 @@ router.post("/user-signup", async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({ username, email, fullName, password: hashedPassword });
     await newUser.save();
 
     await Otp.deleteOne({ email });
@@ -213,7 +213,7 @@ router.post("/google-signup", async (req, res) => {
 
     if (!user) {
       const username = await generateUniqueUsername(name);
-      user = new User({ username, email, profilePic: picture });
+      user = new User({ username, email, fullName: name, profilePic: picture });
       await user.save();
     }
 

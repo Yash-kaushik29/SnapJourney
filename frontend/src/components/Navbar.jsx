@@ -20,9 +20,9 @@ const Navbar = () => {
         <div className="md:hidden flex items-center gap-2">
           <DarkModeToggle />
           {user && (
-            <div className="w-9 h-9 rounded-full bg-rose-500 flex items-center justify-center text-white font-semibold drop-shadow">
+            <Link to='my-profile' className="w-9 h-9 rounded-full bg-rose-500 flex items-center justify-center text-white font-semibold drop-shadow">
               {user.username.charAt(0).toUpperCase()}
-            </div>
+            </Link>
           )}
           <button
             onClick={() => setIsOpen(!isOpen)}
@@ -69,9 +69,9 @@ const Navbar = () => {
               Login
             </Link>
           ) : (
-            <div className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white text-lg font-semibold drop-shadow">
+            <Link to='/my-profile' className="w-10 h-10 rounded-full bg-rose-500 flex items-center justify-center text-white text-lg font-semibold drop-shadow">
               {user.username.charAt(0).toUpperCase()}
-            </div>
+            </Link>
           )}
         </div>
       </div>
