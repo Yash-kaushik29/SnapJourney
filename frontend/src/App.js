@@ -5,6 +5,8 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Home from './pages/Home';
 import SearchFriends from './pages/SearchFriends';
+import ContactPage from "./pages/Contact";
+import FaqsPage from "./pages/Faqpage";
 
 const App = () => {
   return (
@@ -15,6 +17,8 @@ const App = () => {
         <Route path='/login' element={<Login />}/>
         <Route path='/signup' element={<Signup />}/>
         <Route path='/find-friends' element={<SearchFriends />} />
+        <Route path='/contact' element={<ContactPage />} />
+        <Route path='/faqs' element={<FaqsPage />} />
       </Routes>
       </UserContextProvider>
     </div>

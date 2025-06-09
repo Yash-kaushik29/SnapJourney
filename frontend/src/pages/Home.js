@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import Navbar from "../components/Navbar";
 import { UserContext } from "../context/userContext";
 import { Link } from "react-router-dom";
@@ -18,7 +18,8 @@ const container = {
   hidden: {},
   show: {
     transition: {
-      staggerChildren: 0.2,
+      staggerChildren: 0.15,
+      ease: "easeOut",
     },
   },
 };
@@ -41,39 +42,51 @@ const Home = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <div className="relative h-screen">
-        <img
+      <div className="relative h-screen overflow-hidden">
+        <motion.img
           src="/main-img.jpg"
           alt="Home Background"
           className="w-full h-full object-cover opacity-90"
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 2, ease: "easeOut" }}
         />
 
         <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-4 bg-black/30">
-          <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
+          <motion.h1
+            className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
             Explore Together, Plan Smarter
-          </h1>
-          <p className="mt-4 text-md md:text-xl text-gray-100 max-w-2xl drop-shadow-md">
-            <span className="text-rose-500 text-lg md:text-2xl font-semibold">SnapJourney</span> helps you organize your trips with friends, discover
-            places, and create unforgettable journeys – all in one place.
-          </p>
+          </motion.h1>
 
-          {!user && (
-            <Link
-              to="/login"
-              className="mt-6 px-6 py-3 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition"
-            >
-              Get Started
-            </Link>
-          )}
+          <motion.p
+            className="mt-4 text-md md:text-xl text-gray-100 max-w-2xl drop-shadow-md"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
+          >
+            <span className="text-rose-500 text-lg md:text-2xl font-semibold">
+              SnapJourney
+            </span>{" "}
+            helps you organize your trips with friends, discover places, and
+            create unforgettable journeys – all in one place.
+          </motion.p>
 
-          {user && (
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.6 }}
+          >
             <Link
-              to="/plan"
-              className="mt-6 px-6 py-3 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition"
+              to={user ? "/plan" : "/login"}
+              className="mt-6 inline-block px-6 py-3 bg-rose-500 text-white font-medium rounded-lg hover:bg-rose-600 transition duration-300"
             >
-              Plan a Journey
+              {user ? "Plan a Journey" : "Get Started"}
             </Link>
-          )}
+          </motion.div>
         </div>
       </div>
 
@@ -90,19 +103,17 @@ const Home = () => {
           viewport={{ once: true, amount: 0.2 }}
           className="grid grid-cols-2 md:grid-cols-3 gap-4 max-w-6xl mx-auto"
         >
-          {images.map(
-            ({ src, alt, span = "", height = "", full = false }, index) => (
-              <motion.div key={index} variants={item} className={`${span}`}>
-                <img
-                  src={src}
-                  alt={alt}
-                  className={`w-full ${
-                    full ? "h-full" : height
-                  } object-cover rounded-xl shadow-md hover:scale-105 transition`}
-                />
-              </motion.div>
-            )
-          )}
+          {images.map(({ src, alt, span = "", height = "", full = false }, index) => (
+            <motion.div key={index} variants={item} className={`${span}`}>
+              <motion.img
+                src={src}
+                alt={alt}
+                whileHover={{ scale: 1.05 }}
+                transition={{ duration: 0.3, ease: "easeInOut" }}
+                className={`w-full ${full ? "h-full" : height} object-cover rounded-xl shadow-md`}
+              />
+            </motion.div>
+          ))}
         </motion.div>
       </section>
 
