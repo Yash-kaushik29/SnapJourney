@@ -34,5 +34,4 @@ router.get("/search-friends", authMiddleware, async (req, res) => {
   }
 });
 
-
 module.exports = router;

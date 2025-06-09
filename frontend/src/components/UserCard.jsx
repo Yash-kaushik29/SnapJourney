@@ -70,7 +70,7 @@ const UserCard = ({ user, loggedInUserFollowing }) => {
       console.error("Follow failed:", error);
       toast.error("Something went wrong!");
     }
-  };
+  }  
 
   return (
     <motion.div
